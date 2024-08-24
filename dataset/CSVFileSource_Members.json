@@ -6,7 +6,7 @@
 			"type": "LinkedServiceReference"
 		},
 		"folder": {
-			"name": "CSV - File Source"
+			"name": "CSV _File Source"
 		},
 		"annotations": [],
 		"type": "DelimitedText",
@@ -17,6 +17,7 @@
 				"container": "gymdesk"
 			},
 			"columnDelimiter": ",",
+			"rowDelimiter": "\n",
 			"escapeChar": "\\",
 			"firstRowAsHeader": true,
 			"quoteChar": "\""
