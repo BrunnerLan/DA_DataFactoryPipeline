@@ -1,0 +1,292 @@
+{
+	"name": "AzureSqlTable_Visitors",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureSqlDatabase1",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "SQL_DatabaseSink"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "Update Date",
+				"type": "date"
+			},
+			{
+				"name": "First Name",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Last Name",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Phone",
+				"type": "nvarchar"
+			},
+			{
+				"name": "2nd Phone",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Email",
+				"type": "nvarchar"
+			},
+			{
+				"name": "2nd Email",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Date of birth",
+				"type": "date"
+			},
+			{
+				"name": "Age",
+				"type": "tinyint",
+				"precision": 3
+			},
+			{
+				"name": "Address",
+				"type": "nvarchar"
+			},
+			{
+				"name": "City",
+				"type": "nvarchar"
+			},
+			{
+				"name": "State",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Country",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Zip code",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Gender",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Membership",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Membership 1",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Membership 1 Start Date",
+				"type": "date"
+			},
+			{
+				"name": "Membership 1 End Date",
+				"type": "date"
+			},
+			{
+				"name": "Membership 1 Credits",
+				"type": "bit"
+			},
+			{
+				"name": "Membership 2",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Membership 2 Start Date",
+				"type": "date"
+			},
+			{
+				"name": "Membership 2 End Date",
+				"type": "date"
+			},
+			{
+				"name": "Membership 2 Credits",
+				"type": "bit"
+			},
+			{
+				"name": "Membership 3",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Membership 3 Start Date",
+				"type": "date"
+			},
+			{
+				"name": "Membership 3 End Date",
+				"type": "date"
+			},
+			{
+				"name": "Membership 3 Credits",
+				"type": "bit"
+			},
+			{
+				"name": "Membership 4",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Membership 4 Start Date",
+				"type": "date"
+			},
+			{
+				"name": "Membership 4 End Date",
+				"type": "date"
+			},
+			{
+				"name": "Membership 4 Credits",
+				"type": "bit"
+			},
+			{
+				"name": "Contacts",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Contacts 1",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Contacts 1 Number",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Contacts 2",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Contacts 2 Number",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Contacts 3",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Contacts 3 Number",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Status",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Joined",
+				"type": "date"
+			},
+			{
+				"name": "Check-in code",
+				"type": "smallint",
+				"precision": 5
+			},
+			{
+				"name": "Last Visit",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Last Payment",
+				"type": "date"
+			},
+			{
+				"name": "Last Login",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			},
+			{
+				"name": "Notes",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Ranks",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Ranks 1",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Ranks 1 Level",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Ranks 1 Date",
+				"type": "date"
+			},
+			{
+				"name": "Ranks 2",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Ranks 2 Level",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Ranks 2 Date",
+				"type": "date"
+			},
+			{
+				"name": "Ranks 3",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Ranks 3 Level",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Ranks 3 Date",
+				"type": "date"
+			},
+			{
+				"name": "Ranks 4",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Ranks 4 Level",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Ranks 4 Date",
+				"type": "date"
+			},
+			{
+				"name": "Beruf",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Erste Zahlung am",
+				"type": "date"
+			},
+			{
+				"name": "Austritts Datum",
+				"type": "date"
+			},
+			{
+				"name": "AHV-Nummer",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Familien Account",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Grund K�ndigung",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Start Pausierung",
+				"type": "date"
+			},
+			{
+				"name": "Ende Pausierung",
+				"type": "date"
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "visitors"
+		}
+	}
+}
