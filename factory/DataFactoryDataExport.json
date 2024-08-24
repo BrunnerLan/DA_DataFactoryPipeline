@@ -1,0 +1,9 @@
+{
+	"name": "DataFactoryDataExport",
+	"location": "switzerlandnorth",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "0ec27675-243a-472e-ba53-21d7af8fd82b",
+		"tenantId": "8b9e7144-c979-4d47-ba31-154797c2a8a3"
+	}
+}
