@@ -2839,8 +2839,8 @@
 							"timeout": "0.00:15:00",
 							"retry": 3,
 							"retryIntervalInSeconds": 30,
-							"secureOutput": true,
-							"secureInput": true
+							"secureOutput": false,
+							"secureInput": false
 						},
 						"userProperties": [],
 						"typeProperties": {
@@ -2853,6 +2853,8 @@
 						"name": "BlobStorageToDatabaseFlow",
 						"description": "Data processing",
 						"type": "ExecuteDataFlow",
+						"state": "Inactive",
+						"onInactiveMarkAs": "Succeeded",
 						"dependsOn": [
 							{
 								"activity": "GymDeskToBlobStorage",
@@ -2863,10 +2865,10 @@
 						],
 						"policy": {
 							"timeout": "0.00:15:00",
-							"retry": 2,
+							"retry": 3,
 							"retryIntervalInSeconds": 30,
-							"secureOutput": true,
-							"secureInput": true
+							"secureOutput": false,
+							"secureInput": false
 						},
 						"userProperties": [],
 						"typeProperties": {
@@ -2892,6 +2894,34 @@
 							},
 							"traceLevel": "Fine"
 						}
+					},
+					{
+						"name": "RefreshPowerBIDataset",
+						"type": "WebActivity",
+						"state": "Inactive",
+						"onInactiveMarkAs": "Succeeded",
+						"dependsOn": [
+							{
+								"activity": "BlobStorageToDatabaseFlow",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.00:15:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"method": "POST",
+							"headers": {},
+							"url": "https://prod-05.switzerlandnorth.logic.azure.com:443/workflows/12695a545a5c487c85153dec30df1c1f/triggers/When_a_HTTP_request_is_received/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2FWhen_a_HTTP_request_is_received%2Frun&sv=1.0&sig=xI3wgM6Iu7lw5Oqyr-pRxSoFf73F9n51Ek3s5rj8keg",
+							"body": {}
+						}
 					}
 				],
 				"policy": {
@@ -2901,6 +2931,47 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/dataflows/Dataflow_DataToDB')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/TimeTrigger')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Stopped",
+				"pipelines": [
+					{
+						"pipelineReference": {
+							"referenceName": "pipeline1",
+							"type": "PipelineReference"
+						},
+						"parameters": {}
+					}
+				],
+				"type": "ScheduleTrigger",
+				"typeProperties": {
+					"recurrence": {
+						"frequency": "Week",
+						"interval": 1,
+						"startTime": "2024-08-24T10:55:00",
+						"timeZone": "W. Europe Standard Time",
+						"schedule": {
+							"minutes": [
+								0
+							],
+							"hours": [
+								16
+							],
+							"weekDays": [
+								"Thursday"
+							]
+						}
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/pipeline1')]"
 			]
 		}
 	]
