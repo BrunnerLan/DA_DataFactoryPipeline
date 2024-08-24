@@ -16,7 +16,7 @@
 				"fileName": "canceled.csv",
 				"container": "gymdesk"
 			},
-			"columnDelimiter": "@",
+			"columnDelimiter": ",",
 			"rowDelimiter": "\n",
 			"escapeChar": "\\",
 			"firstRowAsHeader": true,
