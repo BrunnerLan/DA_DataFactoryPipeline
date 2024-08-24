@@ -59,6 +59,8 @@
 			{
 				"name": "RefreshPowerBIDataset",
 				"type": "WebActivity",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [
 					{
 						"activity": "BlobStorageToDatabaseFlow",
