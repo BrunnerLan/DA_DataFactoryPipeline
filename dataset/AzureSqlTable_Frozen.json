@@ -1,0 +1,19 @@
+{
+	"name": "AzureSqlTable_Frozen",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureSqlDatabase1",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "SQL_DatabaseSink"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "frozen"
+		}
+	}
+}
