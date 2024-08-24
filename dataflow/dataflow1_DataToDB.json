@@ -10,7 +10,7 @@
 						"type": "DatasetReference"
 					},
 					"name": "SourceMembers",
-					"description": "Import data from CSVFilesSource_Members"
+					"description": "Import data from AzureSqlTable_Members"
 				},
 				{
 					"dataset": {
@@ -18,7 +18,7 @@
 						"type": "DatasetReference"
 					},
 					"name": "SourceVisitors",
-					"description": "Import data from  \nCSVFilesSource_Visitors\n"
+					"description": "Import data from AzureSqlTable_Visitors\n"
 				},
 				{
 					"dataset": {
@@ -26,7 +26,11 @@
 						"type": "DatasetReference"
 					},
 					"name": "SourceCanceled",
-					"description": "Import data from  CSVFilesSource_Canceled \n"
+					"description": "Import data from AzureSqlTable_Canceled \n"
+				},
+				{
+					"name": "SourceFrozen",
+					"description": "Import data from AzureSqlTable_Frozen\n"
 				}
 			],
 			"sinks": [],
@@ -250,7 +254,9 @@
 				"     allowSchemaDrift: false,",
 				"     validateSchema: false,",
 				"     ignoreNoFilesFound: false,",
-				"     multiLineRow: true) ~> SourceCanceled"
+				"     multiLineRow: true) ~> SourceCanceled",
+				"source(allowSchemaDrift: true,",
+				"     validateSchema: false) ~> SourceFrozen"
 			]
 		}
 	}
