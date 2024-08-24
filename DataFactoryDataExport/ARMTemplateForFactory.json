@@ -1,0 +1,2907 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory-Name",
+			"defaultValue": "DataFactoryDataExport"
+		},
+		"AzureBlobStorage_connectionString": {
+			"type": "secureString",
+			"metadata": "Sichere Zeichenfolge für \"connectionString\" von \"AzureBlobStorage\""
+		},
+		"AzureSqlDatabase1_password": {
+			"type": "secureString",
+			"metadata": "Sichere Zeichenfolge für \"password\" von \"AzureSqlDatabase1\""
+		},
+		"AzureSqlDatabase1_properties_typeProperties_server": {
+			"type": "string",
+			"defaultValue": "sql-svr-rd-1.database.windows.net"
+		},
+		"AzureSqlDatabase1_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "GymDesk"
+		},
+		"AzureSqlDatabase1_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "manuel.brunner"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/pipeline1')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "GymDeskToBlobStorage",
+						"description": "Time-controlled function",
+						"type": "AzureFunctionActivity",
+						"state": "Inactive",
+						"onInactiveMarkAs": "Succeeded",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.00:15:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": true,
+							"secureInput": true
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"functionName": "gymdeskSyncTrigger",
+							"headers": {},
+							"method": "GET"
+						}
+					},
+					{
+						"name": "BlobStorageToDatabaseFlow",
+						"description": "Data processing",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "GymDeskToBlobStorage",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.00:15:00",
+							"retry": 2,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": true,
+							"secureInput": true
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "Dataflow_DataToDB",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"SourceMembers": {},
+									"SourceVisitors": {},
+									"SourceCanceled": {},
+									"SourceFrozen": {},
+									"TableMembers": {},
+									"TableVisitors": {},
+									"TableCanceled": {},
+									"TableFrozen": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/Dataflow_DataToDB')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureSqlTable_Canceled')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureSqlDatabase1",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "SQL_DatabaseSink"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "Update Date",
+						"type": "date"
+					},
+					{
+						"name": "First Name",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Last Name",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Phone",
+						"type": "nvarchar"
+					},
+					{
+						"name": "2nd Phone",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Email",
+						"type": "nvarchar"
+					},
+					{
+						"name": "2nd Email",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Date of birth",
+						"type": "date"
+					},
+					{
+						"name": "Age",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "Address",
+						"type": "nvarchar"
+					},
+					{
+						"name": "City",
+						"type": "nvarchar"
+					},
+					{
+						"name": "State",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Country",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Zip code",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Gender",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Membership",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Membership 1",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Membership 1 Start Date",
+						"type": "date"
+					},
+					{
+						"name": "Membership 1 End Date",
+						"type": "date"
+					},
+					{
+						"name": "Membership 1 Credits",
+						"type": "bit"
+					},
+					{
+						"name": "Membership 2",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Membership 2 Start Date",
+						"type": "date"
+					},
+					{
+						"name": "Membership 2 End Date",
+						"type": "date"
+					},
+					{
+						"name": "Membership 2 Credits",
+						"type": "bit"
+					},
+					{
+						"name": "Membership 3",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Membership 3 Start Date",
+						"type": "date"
+					},
+					{
+						"name": "Membership 3 End Date",
+						"type": "date"
+					},
+					{
+						"name": "Membership 3 Credits",
+						"type": "bit"
+					},
+					{
+						"name": "Membership 4",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Membership 4 Start Date",
+						"type": "date"
+					},
+					{
+						"name": "Membership 4 End Date",
+						"type": "date"
+					},
+					{
+						"name": "Membership 4 Credits",
+						"type": "bit"
+					},
+					{
+						"name": "Contacts",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Contacts 1",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Contacts 1 Number",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Contacts 2",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Contacts 2 Number",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Contacts 3",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Contacts 3 Number",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Status",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Joined",
+						"type": "date"
+					},
+					{
+						"name": "Check-in code",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Last Visit",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Last Payment",
+						"type": "date"
+					},
+					{
+						"name": "Last Login",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "Notes",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Ranks",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Ranks 1",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Ranks 1 Level",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Ranks 1 Date",
+						"type": "date"
+					},
+					{
+						"name": "Ranks 2",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Ranks 2 Level",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Ranks 2 Date",
+						"type": "date"
+					},
+					{
+						"name": "Ranks 3",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Ranks 3 Level",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Ranks 3 Date",
+						"type": "date"
+					},
+					{
+						"name": "Ranks 4",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Ranks 4 Level",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Ranks 4 Date",
+						"type": "date"
+					},
+					{
+						"name": "Beruf",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Erste Zahlung am",
+						"type": "date"
+					},
+					{
+						"name": "Austritts Datum",
+						"type": "date"
+					},
+					{
+						"name": "AHV-Nummer",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Familien Account",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Grund K�ndigung",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Start Pausierung",
+						"type": "date"
+					},
+					{
+						"name": "Ende Pausierung",
+						"type": "date"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "canceled"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureSqlTable_Frozen')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureSqlDatabase1",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "SQL_DatabaseSink"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "frozen"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureSqlTable_Members')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureSqlDatabase1",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "SQL_DatabaseSink"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "Update Date",
+						"type": "date"
+					},
+					{
+						"name": "First Name",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Last Name",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Phone",
+						"type": "nvarchar"
+					},
+					{
+						"name": "2nd Phone",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Email",
+						"type": "nvarchar"
+					},
+					{
+						"name": "2nd Email",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Date of birth",
+						"type": "date"
+					},
+					{
+						"name": "Age",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "Address",
+						"type": "nvarchar"
+					},
+					{
+						"name": "City",
+						"type": "nvarchar"
+					},
+					{
+						"name": "State",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Country",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Zip code",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Gender",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Membership",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Membership 1",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Membership 1 Start Date",
+						"type": "date"
+					},
+					{
+						"name": "Membership 1 End Date",
+						"type": "date"
+					},
+					{
+						"name": "Membership 1 Credits",
+						"type": "bit"
+					},
+					{
+						"name": "Membership 2",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Membership 2 Start Date",
+						"type": "date"
+					},
+					{
+						"name": "Membership 2 End Date",
+						"type": "date"
+					},
+					{
+						"name": "Membership 2 Credits",
+						"type": "bit"
+					},
+					{
+						"name": "Membership 3",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Membership 3 Start Date",
+						"type": "date"
+					},
+					{
+						"name": "Membership 3 End Date",
+						"type": "date"
+					},
+					{
+						"name": "Membership 3 Credits",
+						"type": "bit"
+					},
+					{
+						"name": "Membership 4",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Membership 4 Start Date",
+						"type": "date"
+					},
+					{
+						"name": "Membership 4 End Date",
+						"type": "date"
+					},
+					{
+						"name": "Membership 4 Credits",
+						"type": "bit"
+					},
+					{
+						"name": "Contacts",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Contacts 1",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Contacts 1 Number",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Contacts 2",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Contacts 2 Number",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Contacts 3",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Contacts 3 Number",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Status",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Joined",
+						"type": "date"
+					},
+					{
+						"name": "Check-in code",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Last Visit",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Last Payment",
+						"type": "date"
+					},
+					{
+						"name": "Last Login",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "Notes",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Ranks",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Ranks 1",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Ranks 1 Level",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Ranks 1 Date",
+						"type": "date"
+					},
+					{
+						"name": "Ranks 2",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Ranks 2 Level",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Ranks 2 Date",
+						"type": "date"
+					},
+					{
+						"name": "Ranks 3",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Ranks 3 Level",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Ranks 3 Date",
+						"type": "date"
+					},
+					{
+						"name": "Ranks 4",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Ranks 4 Level",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Ranks 4 Date",
+						"type": "date"
+					},
+					{
+						"name": "Beruf",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Erste Zahlung am",
+						"type": "date"
+					},
+					{
+						"name": "Austritts Datum",
+						"type": "date"
+					},
+					{
+						"name": "AHV-Nummer",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Familien Account",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Grund K�ndigung",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Start Pausierung",
+						"type": "date"
+					},
+					{
+						"name": "Ende Pausierung",
+						"type": "date"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "members"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureSqlTable_Visitors')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureSqlDatabase1",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "SQL_DatabaseSink"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "Update Date",
+						"type": "date"
+					},
+					{
+						"name": "First Name",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Last Name",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Phone",
+						"type": "nvarchar"
+					},
+					{
+						"name": "2nd Phone",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Email",
+						"type": "nvarchar"
+					},
+					{
+						"name": "2nd Email",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Date of birth",
+						"type": "date"
+					},
+					{
+						"name": "Age",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "Address",
+						"type": "nvarchar"
+					},
+					{
+						"name": "City",
+						"type": "nvarchar"
+					},
+					{
+						"name": "State",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Country",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Zip code",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Gender",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Membership",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Membership 1",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Membership 1 Start Date",
+						"type": "date"
+					},
+					{
+						"name": "Membership 1 End Date",
+						"type": "date"
+					},
+					{
+						"name": "Membership 1 Credits",
+						"type": "bit"
+					},
+					{
+						"name": "Membership 2",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Membership 2 Start Date",
+						"type": "date"
+					},
+					{
+						"name": "Membership 2 End Date",
+						"type": "date"
+					},
+					{
+						"name": "Membership 2 Credits",
+						"type": "bit"
+					},
+					{
+						"name": "Membership 3",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Membership 3 Start Date",
+						"type": "date"
+					},
+					{
+						"name": "Membership 3 End Date",
+						"type": "date"
+					},
+					{
+						"name": "Membership 3 Credits",
+						"type": "bit"
+					},
+					{
+						"name": "Membership 4",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Membership 4 Start Date",
+						"type": "date"
+					},
+					{
+						"name": "Membership 4 End Date",
+						"type": "date"
+					},
+					{
+						"name": "Membership 4 Credits",
+						"type": "bit"
+					},
+					{
+						"name": "Contacts",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Contacts 1",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Contacts 1 Number",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Contacts 2",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Contacts 2 Number",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Contacts 3",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Contacts 3 Number",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Status",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Joined",
+						"type": "date"
+					},
+					{
+						"name": "Check-in code",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Last Visit",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Last Payment",
+						"type": "date"
+					},
+					{
+						"name": "Last Login",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "Notes",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Ranks",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Ranks 1",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Ranks 1 Level",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Ranks 1 Date",
+						"type": "date"
+					},
+					{
+						"name": "Ranks 2",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Ranks 2 Level",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Ranks 2 Date",
+						"type": "date"
+					},
+					{
+						"name": "Ranks 3",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Ranks 3 Level",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Ranks 3 Date",
+						"type": "date"
+					},
+					{
+						"name": "Ranks 4",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Ranks 4 Level",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Ranks 4 Date",
+						"type": "date"
+					},
+					{
+						"name": "Beruf",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Erste Zahlung am",
+						"type": "date"
+					},
+					{
+						"name": "Austritts Datum",
+						"type": "date"
+					},
+					{
+						"name": "AHV-Nummer",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Familien Account",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Grund K�ndigung",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Start Pausierung",
+						"type": "date"
+					},
+					{
+						"name": "Ende Pausierung",
+						"type": "date"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "visitors"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/CSVFileSource_Canceled')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "CSV_File Source"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "canceled.csv",
+						"container": "gymdesk"
+					},
+					"columnDelimiter": ",",
+					"rowDelimiter": "\n",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "First Name",
+						"type": "String"
+					},
+					{
+						"name": "Last Name",
+						"type": "String"
+					},
+					{
+						"name": "Phone",
+						"type": "String"
+					},
+					{
+						"name": "2nd Phone",
+						"type": "String"
+					},
+					{
+						"name": "Email",
+						"type": "String"
+					},
+					{
+						"name": "2nd Email",
+						"type": "String"
+					},
+					{
+						"name": "Date of birth",
+						"type": "String"
+					},
+					{
+						"name": "Age",
+						"type": "String"
+					},
+					{
+						"name": "Address",
+						"type": "String"
+					},
+					{
+						"name": "City",
+						"type": "String"
+					},
+					{
+						"name": "State",
+						"type": "String"
+					},
+					{
+						"name": "Country",
+						"type": "String"
+					},
+					{
+						"name": "Zip code",
+						"type": "String"
+					},
+					{
+						"name": "Gender",
+						"type": "String"
+					},
+					{
+						"name": "Type",
+						"type": "String"
+					},
+					{
+						"name": "Membership",
+						"type": "String"
+					},
+					{
+						"name": "Membership 1",
+						"type": "String"
+					},
+					{
+						"name": "Membership 1 Start  Date",
+						"type": "String"
+					},
+					{
+						"name": "Membership 1 End Date",
+						"type": "String"
+					},
+					{
+						"name": "Membership 1 Credits",
+						"type": "String"
+					},
+					{
+						"name": "Membership 2",
+						"type": "String"
+					},
+					{
+						"name": "Membership 2 Start  Date",
+						"type": "String"
+					},
+					{
+						"name": "Membership 2 End Date",
+						"type": "String"
+					},
+					{
+						"name": "Membership 2 Credits",
+						"type": "String"
+					},
+					{
+						"name": "Membership 3",
+						"type": "String"
+					},
+					{
+						"name": "Membership 3 Start  Date",
+						"type": "String"
+					},
+					{
+						"name": "Membership 3 End Date",
+						"type": "String"
+					},
+					{
+						"name": "Membership 3 Credits",
+						"type": "String"
+					},
+					{
+						"name": "Membership 4",
+						"type": "String"
+					},
+					{
+						"name": "Membership 4 Start  Date",
+						"type": "String"
+					},
+					{
+						"name": "Membership 4 End Date",
+						"type": "String"
+					},
+					{
+						"name": "Membership 4 Credits",
+						"type": "String"
+					},
+					{
+						"name": "Contacts",
+						"type": "String"
+					},
+					{
+						"name": "Contacts 1",
+						"type": "String"
+					},
+					{
+						"name": "Contacts 1 Number",
+						"type": "String"
+					},
+					{
+						"name": "Contacts 2",
+						"type": "String"
+					},
+					{
+						"name": "Contacts 2 Number",
+						"type": "String"
+					},
+					{
+						"name": "Contacts 3",
+						"type": "String"
+					},
+					{
+						"name": "Contacts 3 Number",
+						"type": "String"
+					},
+					{
+						"name": "Status",
+						"type": "String"
+					},
+					{
+						"name": "Joined",
+						"type": "String"
+					},
+					{
+						"name": "Check-in code",
+						"type": "String"
+					},
+					{
+						"name": "Last Visit",
+						"type": "String"
+					},
+					{
+						"name": "Last Payment",
+						"type": "String"
+					},
+					{
+						"name": "Last Login",
+						"type": "String"
+					},
+					{
+						"name": "Notes",
+						"type": "String"
+					},
+					{
+						"name": "Ranks",
+						"type": "String"
+					},
+					{
+						"name": "Ranks 1",
+						"type": "String"
+					},
+					{
+						"name": "Ranks 1 Level",
+						"type": "String"
+					},
+					{
+						"name": "Ranks 1 Date",
+						"type": "String"
+					},
+					{
+						"name": "Ranks 2",
+						"type": "String"
+					},
+					{
+						"name": "Ranks 2 Level",
+						"type": "String"
+					},
+					{
+						"name": "Ranks 2 Date",
+						"type": "String"
+					},
+					{
+						"name": "Ranks 3",
+						"type": "String"
+					},
+					{
+						"name": "Ranks 3 Level",
+						"type": "String"
+					},
+					{
+						"name": "Ranks 3 Date",
+						"type": "String"
+					},
+					{
+						"name": "Ranks 4",
+						"type": "String"
+					},
+					{
+						"name": "Ranks 4 Level",
+						"type": "String"
+					},
+					{
+						"name": "Ranks 4 Date",
+						"type": "String"
+					},
+					{
+						"name": "Beruf",
+						"type": "String"
+					},
+					{
+						"name": "Erste Zahlung am:",
+						"type": "String"
+					},
+					{
+						"name": "Austritts Datum:",
+						"type": "String"
+					},
+					{
+						"name": "AHV-Nummer",
+						"type": "String"
+					},
+					{
+						"name": "Familien Account",
+						"type": "String"
+					},
+					{
+						"name": "Grund Kündigung",
+						"type": "String"
+					},
+					{
+						"name": "Start Pausierung",
+						"type": "String"
+					},
+					{
+						"name": "Ende Pausierung",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorage')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/CSVFileSource_Frozen')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "CSV_File Source"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "frozen.csv",
+						"container": "gymdesk"
+					},
+					"columnDelimiter": ",",
+					"rowDelimiter": "\n",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "First Name",
+						"type": "String"
+					},
+					{
+						"name": "Last Name",
+						"type": "String"
+					},
+					{
+						"name": "Phone",
+						"type": "String"
+					},
+					{
+						"name": "2nd Phone",
+						"type": "String"
+					},
+					{
+						"name": "Email",
+						"type": "String"
+					},
+					{
+						"name": "2nd Email",
+						"type": "String"
+					},
+					{
+						"name": "Date of birth",
+						"type": "String"
+					},
+					{
+						"name": "Age",
+						"type": "String"
+					},
+					{
+						"name": "Address",
+						"type": "String"
+					},
+					{
+						"name": "City",
+						"type": "String"
+					},
+					{
+						"name": "State",
+						"type": "String"
+					},
+					{
+						"name": "Country",
+						"type": "String"
+					},
+					{
+						"name": "Zip code",
+						"type": "String"
+					},
+					{
+						"name": "Gender",
+						"type": "String"
+					},
+					{
+						"name": "Type",
+						"type": "String"
+					},
+					{
+						"name": "Membership",
+						"type": "String"
+					},
+					{
+						"name": "Membership 1",
+						"type": "String"
+					},
+					{
+						"name": "Membership 1 Start  Date",
+						"type": "String"
+					},
+					{
+						"name": "Membership 1 End Date",
+						"type": "String"
+					},
+					{
+						"name": "Membership 1 Credits",
+						"type": "String"
+					},
+					{
+						"name": "Membership 2",
+						"type": "String"
+					},
+					{
+						"name": "Membership 2 Start  Date",
+						"type": "String"
+					},
+					{
+						"name": "Membership 2 End Date",
+						"type": "String"
+					},
+					{
+						"name": "Membership 2 Credits",
+						"type": "String"
+					},
+					{
+						"name": "Membership 3",
+						"type": "String"
+					},
+					{
+						"name": "Membership 3 Start  Date",
+						"type": "String"
+					},
+					{
+						"name": "Membership 3 End Date",
+						"type": "String"
+					},
+					{
+						"name": "Membership 3 Credits",
+						"type": "String"
+					},
+					{
+						"name": "Membership 4",
+						"type": "String"
+					},
+					{
+						"name": "Membership 4 Start  Date",
+						"type": "String"
+					},
+					{
+						"name": "Membership 4 End Date",
+						"type": "String"
+					},
+					{
+						"name": "Membership 4 Credits",
+						"type": "String"
+					},
+					{
+						"name": "Contacts",
+						"type": "String"
+					},
+					{
+						"name": "Contacts 1",
+						"type": "String"
+					},
+					{
+						"name": "Contacts 1 Number",
+						"type": "String"
+					},
+					{
+						"name": "Contacts 2",
+						"type": "String"
+					},
+					{
+						"name": "Contacts 2 Number",
+						"type": "String"
+					},
+					{
+						"name": "Contacts 3",
+						"type": "String"
+					},
+					{
+						"name": "Contacts 3 Number",
+						"type": "String"
+					},
+					{
+						"name": "Status",
+						"type": "String"
+					},
+					{
+						"name": "Joined",
+						"type": "String"
+					},
+					{
+						"name": "Check-in code",
+						"type": "String"
+					},
+					{
+						"name": "Last Visit",
+						"type": "String"
+					},
+					{
+						"name": "Last Payment",
+						"type": "String"
+					},
+					{
+						"name": "Last Login",
+						"type": "String"
+					},
+					{
+						"name": "Notes",
+						"type": "String"
+					},
+					{
+						"name": "Ranks",
+						"type": "String"
+					},
+					{
+						"name": "Ranks 1",
+						"type": "String"
+					},
+					{
+						"name": "Ranks 1 Level",
+						"type": "String"
+					},
+					{
+						"name": "Ranks 1 Date",
+						"type": "String"
+					},
+					{
+						"name": "Ranks 2",
+						"type": "String"
+					},
+					{
+						"name": "Ranks 2 Level",
+						"type": "String"
+					},
+					{
+						"name": "Ranks 2 Date",
+						"type": "String"
+					},
+					{
+						"name": "Ranks 3",
+						"type": "String"
+					},
+					{
+						"name": "Ranks 3 Level",
+						"type": "String"
+					},
+					{
+						"name": "Ranks 3 Date",
+						"type": "String"
+					},
+					{
+						"name": "Ranks 4",
+						"type": "String"
+					},
+					{
+						"name": "Ranks 4 Level",
+						"type": "String"
+					},
+					{
+						"name": "Ranks 4 Date",
+						"type": "String"
+					},
+					{
+						"name": "Beruf",
+						"type": "String"
+					},
+					{
+						"name": "Erste Zahlung am:",
+						"type": "String"
+					},
+					{
+						"name": "Austritts Datum:",
+						"type": "String"
+					},
+					{
+						"name": "AHV-Nummer",
+						"type": "String"
+					},
+					{
+						"name": "Familien Account",
+						"type": "String"
+					},
+					{
+						"name": "Grund Kündigung",
+						"type": "String"
+					},
+					{
+						"name": "Start Pausierung",
+						"type": "String"
+					},
+					{
+						"name": "Ende Pausierung",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorage')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/CSVFileSource_Members')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "CSV_File Source"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "members.csv",
+						"container": "gymdesk"
+					},
+					"columnDelimiter": ",",
+					"rowDelimiter": "\n",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "First Name",
+						"type": "String"
+					},
+					{
+						"name": "Last Name",
+						"type": "String"
+					},
+					{
+						"name": "Phone",
+						"type": "String"
+					},
+					{
+						"name": "2nd Phone",
+						"type": "String"
+					},
+					{
+						"name": "Email",
+						"type": "String"
+					},
+					{
+						"name": "2nd Email",
+						"type": "String"
+					},
+					{
+						"name": "Date of birth",
+						"type": "String"
+					},
+					{
+						"name": "Age",
+						"type": "String"
+					},
+					{
+						"name": "Address",
+						"type": "String"
+					},
+					{
+						"name": "City",
+						"type": "String"
+					},
+					{
+						"name": "State",
+						"type": "String"
+					},
+					{
+						"name": "Country",
+						"type": "String"
+					},
+					{
+						"name": "Zip code",
+						"type": "String"
+					},
+					{
+						"name": "Gender",
+						"type": "String"
+					},
+					{
+						"name": "Type",
+						"type": "String"
+					},
+					{
+						"name": "Membership",
+						"type": "String"
+					},
+					{
+						"name": "Membership 1",
+						"type": "String"
+					},
+					{
+						"name": "Membership 1 Start  Date",
+						"type": "String"
+					},
+					{
+						"name": "Membership 1 End Date",
+						"type": "String"
+					},
+					{
+						"name": "Membership 1 Credits",
+						"type": "String"
+					},
+					{
+						"name": "Membership 2",
+						"type": "String"
+					},
+					{
+						"name": "Membership 2 Start  Date",
+						"type": "String"
+					},
+					{
+						"name": "Membership 2 End Date",
+						"type": "String"
+					},
+					{
+						"name": "Membership 2 Credits",
+						"type": "String"
+					},
+					{
+						"name": "Membership 3",
+						"type": "String"
+					},
+					{
+						"name": "Membership 3 Start  Date",
+						"type": "String"
+					},
+					{
+						"name": "Membership 3 End Date",
+						"type": "String"
+					},
+					{
+						"name": "Membership 3 Credits",
+						"type": "String"
+					},
+					{
+						"name": "Membership 4",
+						"type": "String"
+					},
+					{
+						"name": "Membership 4 Start  Date",
+						"type": "String"
+					},
+					{
+						"name": "Membership 4 End Date",
+						"type": "String"
+					},
+					{
+						"name": "Membership 4 Credits",
+						"type": "String"
+					},
+					{
+						"name": "Contacts",
+						"type": "String"
+					},
+					{
+						"name": "Contacts 1",
+						"type": "String"
+					},
+					{
+						"name": "Contacts 1 Number",
+						"type": "String"
+					},
+					{
+						"name": "Contacts 2",
+						"type": "String"
+					},
+					{
+						"name": "Contacts 2 Number",
+						"type": "String"
+					},
+					{
+						"name": "Contacts 3",
+						"type": "String"
+					},
+					{
+						"name": "Contacts 3 Number",
+						"type": "String"
+					},
+					{
+						"name": "Status",
+						"type": "String"
+					},
+					{
+						"name": "Joined",
+						"type": "String"
+					},
+					{
+						"name": "Check-in code",
+						"type": "String"
+					},
+					{
+						"name": "Last Visit",
+						"type": "String"
+					},
+					{
+						"name": "Last Payment",
+						"type": "String"
+					},
+					{
+						"name": "Last Login",
+						"type": "String"
+					},
+					{
+						"name": "Notes",
+						"type": "String"
+					},
+					{
+						"name": "Ranks",
+						"type": "String"
+					},
+					{
+						"name": "Ranks 1",
+						"type": "String"
+					},
+					{
+						"name": "Ranks 1 Level",
+						"type": "String"
+					},
+					{
+						"name": "Ranks 1 Date",
+						"type": "String"
+					},
+					{
+						"name": "Ranks 2",
+						"type": "String"
+					},
+					{
+						"name": "Ranks 2 Level",
+						"type": "String"
+					},
+					{
+						"name": "Ranks 2 Date",
+						"type": "String"
+					},
+					{
+						"name": "Ranks 3",
+						"type": "String"
+					},
+					{
+						"name": "Ranks 3 Level",
+						"type": "String"
+					},
+					{
+						"name": "Ranks 3 Date",
+						"type": "String"
+					},
+					{
+						"name": "Ranks 4",
+						"type": "String"
+					},
+					{
+						"name": "Ranks 4 Level",
+						"type": "String"
+					},
+					{
+						"name": "Ranks 4 Date",
+						"type": "String"
+					},
+					{
+						"name": "Beruf",
+						"type": "String"
+					},
+					{
+						"name": "Erste Zahlung am:",
+						"type": "String"
+					},
+					{
+						"name": "Austritts Datum:",
+						"type": "String"
+					},
+					{
+						"name": "AHV-Nummer",
+						"type": "String"
+					},
+					{
+						"name": "Familien Account",
+						"type": "String"
+					},
+					{
+						"name": "Grund Kündigung",
+						"type": "String"
+					},
+					{
+						"name": "Start Pausierung",
+						"type": "String"
+					},
+					{
+						"name": "Ende Pausierung",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorage')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/CSVFileSource_Visitors')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "CSV_File Source"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "visitors.csv",
+						"container": "gymdesk"
+					},
+					"columnDelimiter": ",",
+					"rowDelimiter": "\n",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "First Name",
+						"type": "String"
+					},
+					{
+						"name": "Last Name",
+						"type": "String"
+					},
+					{
+						"name": "Phone",
+						"type": "String"
+					},
+					{
+						"name": "2nd Phone",
+						"type": "String"
+					},
+					{
+						"name": "Email",
+						"type": "String"
+					},
+					{
+						"name": "2nd Email",
+						"type": "String"
+					},
+					{
+						"name": "Date of birth",
+						"type": "String"
+					},
+					{
+						"name": "Age",
+						"type": "String"
+					},
+					{
+						"name": "Address",
+						"type": "String"
+					},
+					{
+						"name": "City",
+						"type": "String"
+					},
+					{
+						"name": "State",
+						"type": "String"
+					},
+					{
+						"name": "Country",
+						"type": "String"
+					},
+					{
+						"name": "Zip code",
+						"type": "String"
+					},
+					{
+						"name": "Gender",
+						"type": "String"
+					},
+					{
+						"name": "Type",
+						"type": "String"
+					},
+					{
+						"name": "Membership",
+						"type": "String"
+					},
+					{
+						"name": "Membership 1",
+						"type": "String"
+					},
+					{
+						"name": "Membership 1 Start  Date",
+						"type": "String"
+					},
+					{
+						"name": "Membership 1 End Date",
+						"type": "String"
+					},
+					{
+						"name": "Membership 1 Credits",
+						"type": "String"
+					},
+					{
+						"name": "Membership 2",
+						"type": "String"
+					},
+					{
+						"name": "Membership 2 Start  Date",
+						"type": "String"
+					},
+					{
+						"name": "Membership 2 End Date",
+						"type": "String"
+					},
+					{
+						"name": "Membership 2 Credits",
+						"type": "String"
+					},
+					{
+						"name": "Membership 3",
+						"type": "String"
+					},
+					{
+						"name": "Membership 3 Start  Date",
+						"type": "String"
+					},
+					{
+						"name": "Membership 3 End Date",
+						"type": "String"
+					},
+					{
+						"name": "Membership 3 Credits",
+						"type": "String"
+					},
+					{
+						"name": "Membership 4",
+						"type": "String"
+					},
+					{
+						"name": "Membership 4 Start  Date",
+						"type": "String"
+					},
+					{
+						"name": "Membership 4 End Date",
+						"type": "String"
+					},
+					{
+						"name": "Membership 4 Credits",
+						"type": "String"
+					},
+					{
+						"name": "Contacts",
+						"type": "String"
+					},
+					{
+						"name": "Contacts 1",
+						"type": "String"
+					},
+					{
+						"name": "Contacts 1 Number",
+						"type": "String"
+					},
+					{
+						"name": "Contacts 2",
+						"type": "String"
+					},
+					{
+						"name": "Contacts 2 Number",
+						"type": "String"
+					},
+					{
+						"name": "Contacts 3",
+						"type": "String"
+					},
+					{
+						"name": "Contacts 3 Number",
+						"type": "String"
+					},
+					{
+						"name": "Status",
+						"type": "String"
+					},
+					{
+						"name": "Joined",
+						"type": "String"
+					},
+					{
+						"name": "Check-in code",
+						"type": "String"
+					},
+					{
+						"name": "Last Visit",
+						"type": "String"
+					},
+					{
+						"name": "Last Payment",
+						"type": "String"
+					},
+					{
+						"name": "Last Login",
+						"type": "String"
+					},
+					{
+						"name": "Notes",
+						"type": "String"
+					},
+					{
+						"name": "Ranks",
+						"type": "String"
+					},
+					{
+						"name": "Ranks 1",
+						"type": "String"
+					},
+					{
+						"name": "Ranks 1 Level",
+						"type": "String"
+					},
+					{
+						"name": "Ranks 1 Date",
+						"type": "String"
+					},
+					{
+						"name": "Ranks 2",
+						"type": "String"
+					},
+					{
+						"name": "Ranks 2 Level",
+						"type": "String"
+					},
+					{
+						"name": "Ranks 2 Date",
+						"type": "String"
+					},
+					{
+						"name": "Ranks 3",
+						"type": "String"
+					},
+					{
+						"name": "Ranks 3 Level",
+						"type": "String"
+					},
+					{
+						"name": "Ranks 3 Date",
+						"type": "String"
+					},
+					{
+						"name": "Ranks 4",
+						"type": "String"
+					},
+					{
+						"name": "Ranks 4 Level",
+						"type": "String"
+					},
+					{
+						"name": "Ranks 4 Date",
+						"type": "String"
+					},
+					{
+						"name": "Beruf",
+						"type": "String"
+					},
+					{
+						"name": "Erste Zahlung am:",
+						"type": "String"
+					},
+					{
+						"name": "Austritts Datum:",
+						"type": "String"
+					},
+					{
+						"name": "AHV-Nummer",
+						"type": "String"
+					},
+					{
+						"name": "Familien Account",
+						"type": "String"
+					},
+					{
+						"name": "Grund Kündigung",
+						"type": "String"
+					},
+					{
+						"name": "Start Pausierung",
+						"type": "String"
+					},
+					{
+						"name": "Ende Pausierung",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorage')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureBlobStorage')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Connection Azure Blob Storage to Data Factory",
+				"annotations": [],
+				"type": "AzureBlobStorage",
+				"typeProperties": {
+					"connectionString": "[parameters('AzureBlobStorage_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureSqlDatabase1')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Data connection Azure Data Factory to SQL Server",
+				"annotations": [],
+				"type": "AzureSqlDatabase",
+				"typeProperties": {
+					"server": "[parameters('AzureSqlDatabase1_properties_typeProperties_server')]",
+					"database": "[parameters('AzureSqlDatabase1_properties_typeProperties_database')]",
+					"encrypt": "mandatory",
+					"trustServerCertificate": false,
+					"authenticationType": "SQL",
+					"userName": "[parameters('AzureSqlDatabase1_properties_typeProperties_userName')]",
+					"password": {
+						"type": "SecureString",
+						"value": "[parameters('AzureSqlDatabase1_password')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Dataflow_DataToDB')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "CSVFileSource_Members",
+								"type": "DatasetReference"
+							},
+							"name": "SourceMembers",
+							"description": "Import data from AzureSqlTable_Members"
+						},
+						{
+							"dataset": {
+								"referenceName": "CSVFileSource_Visitors",
+								"type": "DatasetReference"
+							},
+							"name": "SourceVisitors",
+							"description": "Import data from AzureSqlTable_Visitors\n"
+						},
+						{
+							"dataset": {
+								"referenceName": "CSVFileSource_Canceled",
+								"type": "DatasetReference"
+							},
+							"name": "SourceCanceled",
+							"description": "Import data from AzureSqlTable_Canceled \n"
+						},
+						{
+							"dataset": {
+								"referenceName": "CSVFileSource_Frozen",
+								"type": "DatasetReference"
+							},
+							"name": "SourceFrozen",
+							"description": "Import data from AzureSqlTable_Frozen\n"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "AzureSqlTable_Members",
+								"type": "DatasetReference"
+							},
+							"name": "TableMembers",
+							"description": "Export data to \"SQLDatabase_GymDesks\""
+						},
+						{
+							"dataset": {
+								"referenceName": "AzureSqlTable_Visitors",
+								"type": "DatasetReference"
+							},
+							"name": "TableVisitors",
+							"description": "Export data to \"SQLDatabase_GymDesks\""
+						},
+						{
+							"dataset": {
+								"referenceName": "AzureSqlTable_Canceled",
+								"type": "DatasetReference"
+							},
+							"name": "TableCanceled",
+							"description": "Export data to \"SQLDatabase_GymDesks\""
+						},
+						{
+							"dataset": {
+								"referenceName": "AzureSqlTable_Frozen",
+								"type": "DatasetReference"
+							},
+							"name": "TableFrozen",
+							"description": "Export data to \"SQLDatabase_GymDesks\""
+						}
+					],
+					"transformations": [],
+					"scriptLines": [
+						"source(output(",
+						"          {First Name} as string,",
+						"          {Last Name} as string,",
+						"          Phone as string,",
+						"          {2nd Phone} as string,",
+						"          Email as string,",
+						"          {2nd Email} as string,",
+						"          {Date of birth} as date 'dd/MM/yyyy',",
+						"          Age as short '##0',",
+						"          Address as string,",
+						"          City as string,",
+						"          State as string,",
+						"          Country as string,",
+						"          {Zip code} as short '##0',",
+						"          Gender as string,",
+						"          Type as string,",
+						"          Membership as string,",
+						"          {Membership 1} as string,",
+						"          {Membership 1 Start  Date} as date 'dd/MM/yyyy',",
+						"          {Membership 1 End Date} as date 'dd/MM/yyyy',",
+						"          {Membership 1 Credits} as boolean,",
+						"          {Membership 2} as string,",
+						"          {Membership 2 Start  Date} as date 'dd/MM/yyyy',",
+						"          {Membership 2 End Date} as date 'dd/MM/yyyy',",
+						"          {Membership 2 Credits} as boolean,",
+						"          {Membership 3} as string,",
+						"          {Membership 3 Start  Date} as date 'dd/MM/yyyy',",
+						"          {Membership 3 End Date} as date 'dd/MM/yyyy',",
+						"          {Membership 3 Credits} as boolean,",
+						"          {Membership 4} as string,",
+						"          {Membership 4 Start  Date} as date 'dd/MM/yyyy',",
+						"          {Membership 4 End Date} as date 'dd/MM/yyyy',",
+						"          {Membership 4 Credits} as boolean,",
+						"          Contacts as string,",
+						"          {Contacts 1} as string,",
+						"          {Contacts 1 Number} as string,",
+						"          {Contacts 2} as string,",
+						"          {Contacts 2 Number} as string,",
+						"          {Contacts 3} as string,",
+						"          {Contacts 3 Number} as string,",
+						"          Status as string,",
+						"          Joined as date 'dd/MM/yyyy',",
+						"          {Check-in code} as short '##0',",
+						"          {Last Visit} as string,",
+						"          {Last Payment} as date 'dd/MM/yyyy',",
+						"          {Last Login} as timestamp 'dd/MM/yyyy HH:mm',",
+						"          Notes as string,",
+						"          Ranks as string,",
+						"          {Ranks 1} as string,",
+						"          {Ranks 1 Level} as string,",
+						"          {Ranks 1 Date} as date 'dd/MM/yyyy',",
+						"          {Ranks 2} as string,",
+						"          {Ranks 2 Level} as string,",
+						"          {Ranks 2 Date} as date 'dd/MM/yyyy',",
+						"          {Ranks 3} as string,",
+						"          {Ranks 3 Level} as string,",
+						"          {Ranks 3 Date} as date 'dd/MM/yyyy',",
+						"          {Ranks 4} as string,",
+						"          {Ranks 4 Level} as string,",
+						"          {Ranks 4 Date} as date 'dd/MM/yyyy',",
+						"          Beruf as string,",
+						"          {Erste Zahlung am:} as date 'dd/MM/yyyy',",
+						"          {Austritts Datum:} as date 'dd/MM/yyyy',",
+						"          {AHV-Nummer} as string,",
+						"          {Familien Account} as string,",
+						"          {Grund Kündigung} as string,",
+						"          {Start Pausierung} as date 'dd/MM/yyyy',",
+						"          {Ende Pausierung} as date 'dd/MM/yyyy'",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     multiLineRow: true) ~> SourceMembers",
+						"source(output(",
+						"          {First Name} as string,",
+						"          {Last Name} as string,",
+						"          Phone as string,",
+						"          {2nd Phone} as string,",
+						"          Email as string,",
+						"          {2nd Email} as string,",
+						"          {Date of birth} as date 'dd/MM/yyyy',",
+						"          Age as short '##0',",
+						"          Address as string,",
+						"          City as string,",
+						"          State as string,",
+						"          Country as string,",
+						"          {Zip code} as short '##0',",
+						"          Gender as string,",
+						"          Type as string,",
+						"          Membership as string,",
+						"          {Membership 1} as string,",
+						"          {Membership 1 Start  Date} as date 'dd/MM/yyyy',",
+						"          {Membership 1 End Date} as date 'dd/MM/yyyy',",
+						"          {Membership 1 Credits} as boolean,",
+						"          {Membership 2} as string,",
+						"          {Membership 2 Start  Date} as date 'dd/MM/yyyy',",
+						"          {Membership 2 End Date} as date 'dd/MM/yyyy',",
+						"          {Membership 2 Credits} as boolean,",
+						"          {Membership 3} as string,",
+						"          {Membership 3 Start  Date} as date 'dd/MM/yyyy',",
+						"          {Membership 3 End Date} as date 'dd/MM/yyyy',",
+						"          {Membership 3 Credits} as boolean,",
+						"          {Membership 4} as string,",
+						"          {Membership 4 Start  Date} as date 'dd/MM/yyyy',",
+						"          {Membership 4 End Date} as date 'dd/MM/yyyy',",
+						"          {Membership 4 Credits} as boolean,",
+						"          Contacts as string,",
+						"          {Contacts 1} as string,",
+						"          {Contacts 1 Number} as string,",
+						"          {Contacts 2} as string,",
+						"          {Contacts 2 Number} as string,",
+						"          {Contacts 3} as string,",
+						"          {Contacts 3 Number} as string,",
+						"          Status as string,",
+						"          Joined as date 'dd/MM/yyyy',",
+						"          {Check-in code} as short '##0',",
+						"          {Last Visit} as string,",
+						"          {Last Payment} as date 'dd/MM/yyyy',",
+						"          {Last Login} as timestamp 'dd/MM/yyyy HH:mm',",
+						"          Notes as string,",
+						"          Ranks as string,",
+						"          {Ranks 1} as string,",
+						"          {Ranks 1 Level} as string,",
+						"          {Ranks 1 Date} as date 'dd/MM/yyyy',",
+						"          {Ranks 2} as string,",
+						"          {Ranks 2 Level} as string,",
+						"          {Ranks 2 Date} as date 'dd/MM/yyyy',",
+						"          {Ranks 3} as string,",
+						"          {Ranks 3 Level} as string,",
+						"          {Ranks 3 Date} as date 'dd/MM/yyyy',",
+						"          {Ranks 4} as string,",
+						"          {Ranks 4 Level} as string,",
+						"          {Ranks 4 Date} as date 'dd/MM/yyyy',",
+						"          Beruf as string,",
+						"          {Erste Zahlung am:} as date 'dd/MM/yyyy',",
+						"          {Austritts Datum:} as date 'dd/MM/yyyy',",
+						"          {AHV-Nummer} as string,",
+						"          {Familien Account} as string,",
+						"          {Grund Kündigung} as string,",
+						"          {Start Pausierung} as date 'dd/MM/yyyy',",
+						"          {Ende Pausierung} as date 'dd/MM/yyyy'",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     multiLineRow: true) ~> SourceVisitors",
+						"source(output(",
+						"          {First Name} as string,",
+						"          {Last Name} as string,",
+						"          Phone as string,",
+						"          {2nd Phone} as string,",
+						"          Email as string,",
+						"          {2nd Email} as string,",
+						"          {Date of birth} as date 'dd/MM/yyyy',",
+						"          Age as short '##0',",
+						"          Address as string,",
+						"          City as string,",
+						"          State as string,",
+						"          Country as string,",
+						"          {Zip code} as short '##0',",
+						"          Gender as string,",
+						"          Type as string,",
+						"          Membership as string,",
+						"          {Membership 1} as string,",
+						"          {Membership 1 Start  Date} as date 'dd/MM/yyyy',",
+						"          {Membership 1 End Date} as date 'dd/MM/yyyy',",
+						"          {Membership 1 Credits} as boolean,",
+						"          {Membership 2} as string,",
+						"          {Membership 2 Start  Date} as date 'dd/MM/yyyy',",
+						"          {Membership 2 End Date} as date 'dd/MM/yyyy',",
+						"          {Membership 2 Credits} as boolean,",
+						"          {Membership 3} as string,",
+						"          {Membership 3 Start  Date} as date 'dd/MM/yyyy',",
+						"          {Membership 3 End Date} as date 'dd/MM/yyyy',",
+						"          {Membership 3 Credits} as boolean,",
+						"          {Membership 4} as string,",
+						"          {Membership 4 Start  Date} as date 'dd/MM/yyyy',",
+						"          {Membership 4 End Date} as date 'dd/MM/yyyy',",
+						"          {Membership 4 Credits} as boolean,",
+						"          Contacts as string,",
+						"          {Contacts 1} as string,",
+						"          {Contacts 1 Number} as string,",
+						"          {Contacts 2} as string,",
+						"          {Contacts 2 Number} as string,",
+						"          {Contacts 3} as string,",
+						"          {Contacts 3 Number} as string,",
+						"          Status as string,",
+						"          Joined as date 'dd/MM/yyyy',",
+						"          {Check-in code} as short '##0',",
+						"          {Last Visit} as string,",
+						"          {Last Payment} as date 'dd/MM/yyyy',",
+						"          {Last Login} as timestamp 'dd/MM/yyyy HH:mm',",
+						"          Notes as string,",
+						"          Ranks as string,",
+						"          {Ranks 1} as string,",
+						"          {Ranks 1 Level} as string,",
+						"          {Ranks 1 Date} as date 'dd/MM/yyyy',",
+						"          {Ranks 2} as string,",
+						"          {Ranks 2 Level} as string,",
+						"          {Ranks 2 Date} as date 'dd/MM/yyyy',",
+						"          {Ranks 3} as string,",
+						"          {Ranks 3 Level} as string,",
+						"          {Ranks 3 Date} as date 'dd/MM/yyyy',",
+						"          {Ranks 4} as string,",
+						"          {Ranks 4 Level} as string,",
+						"          {Ranks 4 Date} as date 'dd/MM/yyyy',",
+						"          Beruf as string,",
+						"          {Erste Zahlung am:} as date 'dd/MM/yyyy',",
+						"          {Austritts Datum:} as date 'dd/MM/yyyy',",
+						"          {AHV-Nummer} as string,",
+						"          {Familien Account} as string,",
+						"          {Grund Kündigung} as string,",
+						"          {Start Pausierung} as date 'dd/MM/yyyy',",
+						"          {Ende Pausierung} as date 'dd/MM/yyyy'",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     multiLineRow: true) ~> SourceCanceled",
+						"source(output(",
+						"          {First Name} as string,",
+						"          {Last Name} as string,",
+						"          Phone as string,",
+						"          {2nd Phone} as string,",
+						"          Email as string,",
+						"          {2nd Email} as string,",
+						"          {Date of birth} as date 'dd/MM/yyyy',",
+						"          Age as short '##0',",
+						"          Address as string,",
+						"          City as string,",
+						"          State as string,",
+						"          Country as string,",
+						"          {Zip code} as short '##0',",
+						"          Gender as string,",
+						"          Type as string,",
+						"          Membership as string,",
+						"          {Membership 1} as string,",
+						"          {Membership 1 Start  Date} as date 'dd/MM/yyyy',",
+						"          {Membership 1 End Date} as date 'dd/MM/yyyy',",
+						"          {Membership 1 Credits} as boolean,",
+						"          {Membership 2} as string,",
+						"          {Membership 2 Start  Date} as date 'dd/MM/yyyy',",
+						"          {Membership 2 End Date} as date 'dd/MM/yyyy',",
+						"          {Membership 2 Credits} as boolean,",
+						"          {Membership 3} as string,",
+						"          {Membership 3 Start  Date} as date 'dd/MM/yyyy',",
+						"          {Membership 3 End Date} as date 'dd/MM/yyyy',",
+						"          {Membership 3 Credits} as boolean,",
+						"          {Membership 4} as string,",
+						"          {Membership 4 Start  Date} as date 'dd/MM/yyyy',",
+						"          {Membership 4 End Date} as date 'dd/MM/yyyy',",
+						"          {Membership 4 Credits} as boolean,",
+						"          Contacts as string,",
+						"          {Contacts 1} as string,",
+						"          {Contacts 1 Number} as string,",
+						"          {Contacts 2} as string,",
+						"          {Contacts 2 Number} as string,",
+						"          {Contacts 3} as string,",
+						"          {Contacts 3 Number} as string,",
+						"          Status as string,",
+						"          Joined as date 'dd/MM/yyyy',",
+						"          {Check-in code} as short '##0',",
+						"          {Last Visit} as string,",
+						"          {Last Payment} as date 'dd/MM/yyyy',",
+						"          {Last Login} as timestamp 'dd/MM/yyyy HH:mm',",
+						"          Notes as string,",
+						"          Ranks as string,",
+						"          {Ranks 1} as string,",
+						"          {Ranks 1 Level} as string,",
+						"          {Ranks 1 Date} as date '      dd/MM/yyyy',",
+						"          {Ranks 2} as string,",
+						"          {Ranks 2 Level} as string,",
+						"          {Ranks 2 Date} as date '      dd/MM/yyyy',",
+						"          {Ranks 3} as string,",
+						"          {Ranks 3 Level} as string,",
+						"          {Ranks 3 Date} as date '      dd/MM/yyyy',",
+						"          {Ranks 4} as string,",
+						"          {Ranks 4 Level} as string,",
+						"          {Ranks 4 Date} as date '      dd/MM/yyyy',",
+						"          Beruf as string,",
+						"          {Erste Zahlung am:} as date '      dd/MM/yyyy',",
+						"          {Austritts Datum:} as date '      dd/MM/yyyy',",
+						"          {AHV-Nummer} as string,",
+						"          {Familien Account} as string,",
+						"          {Grund Kündigung} as string,",
+						"          {Start Pausierung} as date '      dd/MM/yyyy',",
+						"          {Ende Pausierung} as date '      dd/MM/yyyy'",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     multiLineRow: true) ~> SourceFrozen",
+						"SourceMembers sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          {Update Date} as date,",
+						"          {First Name} as string,",
+						"          {Last Name} as string,",
+						"          Phone as string,",
+						"          {2nd Phone} as string,",
+						"          Email as string,",
+						"          {2nd Email} as string,",
+						"          {Date of birth} as date,",
+						"          Age as integer,",
+						"          Address as string,",
+						"          City as string,",
+						"          State as string,",
+						"          Country as string,",
+						"          {Zip code} as string,",
+						"          Gender as string,",
+						"          Membership as string,",
+						"          {Membership 1} as string,",
+						"          {Membership 1 Start Date} as date,",
+						"          {Membership 1 End Date} as date,",
+						"          {Membership 1 Credits} as boolean,",
+						"          {Membership 2} as string,",
+						"          {Membership 2 Start Date} as date,",
+						"          {Membership 2 End Date} as date,",
+						"          {Membership 2 Credits} as boolean,",
+						"          {Membership 3} as string,",
+						"          {Membership 3 Start Date} as date,",
+						"          {Membership 3 End Date} as date,",
+						"          {Membership 3 Credits} as boolean,",
+						"          {Membership 4} as string,",
+						"          {Membership 4 Start Date} as date,",
+						"          {Membership 4 End Date} as date,",
+						"          {Membership 4 Credits} as boolean,",
+						"          Contacts as string,",
+						"          {Contacts 1} as string,",
+						"          {Contacts 1 Number} as string,",
+						"          {Contacts 2} as string,",
+						"          {Contacts 2 Number} as string,",
+						"          {Contacts 3} as string,",
+						"          {Contacts 3 Number} as string,",
+						"          Status as string,",
+						"          Joined as date,",
+						"          {Check-in code} as integer,",
+						"          {Last Visit} as string,",
+						"          {Last Payment} as date,",
+						"          {Last Login} as timestamp,",
+						"          Notes as string,",
+						"          Ranks as string,",
+						"          {Ranks 1} as string,",
+						"          {Ranks 1 Level} as string,",
+						"          {Ranks 1 Date} as date,",
+						"          {Ranks 2} as string,",
+						"          {Ranks 2 Level} as string,",
+						"          {Ranks 2 Date} as date,",
+						"          {Ranks 3} as string,",
+						"          {Ranks 3 Level} as string,",
+						"          {Ranks 3 Date} as date,",
+						"          {Ranks 4} as string,",
+						"          {Ranks 4 Level} as string,",
+						"          {Ranks 4 Date} as date,",
+						"          Beruf as string,",
+						"          {Erste Zahlung am} as date,",
+						"          {Austritts Datum} as date,",
+						"          {AHV-Nummer} as string,",
+						"          {Familien Account} as string,",
+						"          {Grund K�ndigung} as string,",
+						"          {Start Pausierung} as date,",
+						"          {Ende Pausierung} as date",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     preSQLs:['TRUNCATE TABLE dbo.members;'],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> TableMembers",
+						"SourceVisitors sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          {Update Date} as date,",
+						"          {First Name} as string,",
+						"          {Last Name} as string,",
+						"          Phone as string,",
+						"          {2nd Phone} as string,",
+						"          Email as string,",
+						"          {2nd Email} as string,",
+						"          {Date of birth} as date,",
+						"          Age as integer,",
+						"          Address as string,",
+						"          City as string,",
+						"          State as string,",
+						"          Country as string,",
+						"          {Zip code} as string,",
+						"          Gender as string,",
+						"          Membership as string,",
+						"          {Membership 1} as string,",
+						"          {Membership 1 Start Date} as date,",
+						"          {Membership 1 End Date} as date,",
+						"          {Membership 1 Credits} as boolean,",
+						"          {Membership 2} as string,",
+						"          {Membership 2 Start Date} as date,",
+						"          {Membership 2 End Date} as date,",
+						"          {Membership 2 Credits} as boolean,",
+						"          {Membership 3} as string,",
+						"          {Membership 3 Start Date} as date,",
+						"          {Membership 3 End Date} as date,",
+						"          {Membership 3 Credits} as boolean,",
+						"          {Membership 4} as string,",
+						"          {Membership 4 Start Date} as date,",
+						"          {Membership 4 End Date} as date,",
+						"          {Membership 4 Credits} as boolean,",
+						"          Contacts as string,",
+						"          {Contacts 1} as string,",
+						"          {Contacts 1 Number} as string,",
+						"          {Contacts 2} as string,",
+						"          {Contacts 2 Number} as string,",
+						"          {Contacts 3} as string,",
+						"          {Contacts 3 Number} as string,",
+						"          Status as string,",
+						"          Joined as date,",
+						"          {Check-in code} as integer,",
+						"          {Last Visit} as string,",
+						"          {Last Payment} as date,",
+						"          {Last Login} as timestamp,",
+						"          Notes as string,",
+						"          Ranks as string,",
+						"          {Ranks 1} as string,",
+						"          {Ranks 1 Level} as string,",
+						"          {Ranks 1 Date} as date,",
+						"          {Ranks 2} as string,",
+						"          {Ranks 2 Level} as string,",
+						"          {Ranks 2 Date} as date,",
+						"          {Ranks 3} as string,",
+						"          {Ranks 3 Level} as string,",
+						"          {Ranks 3 Date} as date,",
+						"          {Ranks 4} as string,",
+						"          {Ranks 4 Level} as string,",
+						"          {Ranks 4 Date} as date,",
+						"          Beruf as string,",
+						"          {Erste Zahlung am} as date,",
+						"          {Austritts Datum} as date,",
+						"          {AHV-Nummer} as string,",
+						"          {Familien Account} as string,",
+						"          {Grund K�ndigung} as string,",
+						"          {Start Pausierung} as date,",
+						"          {Ende Pausierung} as date",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     preSQLs:['TRUNCATE TABLE dbo.visitors;'],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> TableVisitors",
+						"SourceCanceled sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          {Update Date} as date,",
+						"          {First Name} as string,",
+						"          {Last Name} as string,",
+						"          Phone as string,",
+						"          {2nd Phone} as string,",
+						"          Email as string,",
+						"          {2nd Email} as string,",
+						"          {Date of birth} as date,",
+						"          Age as integer,",
+						"          Address as string,",
+						"          City as string,",
+						"          State as string,",
+						"          Country as string,",
+						"          {Zip code} as string,",
+						"          Gender as string,",
+						"          Membership as string,",
+						"          {Membership 1} as string,",
+						"          {Membership 1 Start Date} as date,",
+						"          {Membership 1 End Date} as date,",
+						"          {Membership 1 Credits} as boolean,",
+						"          {Membership 2} as string,",
+						"          {Membership 2 Start Date} as date,",
+						"          {Membership 2 End Date} as date,",
+						"          {Membership 2 Credits} as boolean,",
+						"          {Membership 3} as string,",
+						"          {Membership 3 Start Date} as date,",
+						"          {Membership 3 End Date} as date,",
+						"          {Membership 3 Credits} as boolean,",
+						"          {Membership 4} as string,",
+						"          {Membership 4 Start Date} as date,",
+						"          {Membership 4 End Date} as date,",
+						"          {Membership 4 Credits} as boolean,",
+						"          Contacts as string,",
+						"          {Contacts 1} as string,",
+						"          {Contacts 1 Number} as string,",
+						"          {Contacts 2} as string,",
+						"          {Contacts 2 Number} as string,",
+						"          {Contacts 3} as string,",
+						"          {Contacts 3 Number} as string,",
+						"          Status as string,",
+						"          Joined as date,",
+						"          {Check-in code} as integer,",
+						"          {Last Visit} as string,",
+						"          {Last Payment} as date,",
+						"          {Last Login} as timestamp,",
+						"          Notes as string,",
+						"          Ranks as string,",
+						"          {Ranks 1} as string,",
+						"          {Ranks 1 Level} as string,",
+						"          {Ranks 1 Date} as date,",
+						"          {Ranks 2} as string,",
+						"          {Ranks 2 Level} as string,",
+						"          {Ranks 2 Date} as date,",
+						"          {Ranks 3} as string,",
+						"          {Ranks 3 Level} as string,",
+						"          {Ranks 3 Date} as date,",
+						"          {Ranks 4} as string,",
+						"          {Ranks 4 Level} as string,",
+						"          {Ranks 4 Date} as date,",
+						"          Beruf as string,",
+						"          {Erste Zahlung am} as date,",
+						"          {Austritts Datum} as date,",
+						"          {AHV-Nummer} as string,",
+						"          {Familien Account} as string,",
+						"          {Grund K�ndigung} as string,",
+						"          {Start Pausierung} as date,",
+						"          {Ende Pausierung} as date",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     preSQLs:['TRUNCATE TABLE dbo.canceled;'],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> TableCanceled",
+						"SourceFrozen sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     preSQLs:['TRUNCATE TABLE dbo.frozen;'],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> TableFrozen"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/CSVFileSource_Members')]",
+				"[concat(variables('factoryId'), '/datasets/CSVFileSource_Visitors')]",
+				"[concat(variables('factoryId'), '/datasets/CSVFileSource_Canceled')]",
+				"[concat(variables('factoryId'), '/datasets/CSVFileSource_Frozen')]",
+				"[concat(variables('factoryId'), '/datasets/AzureSqlTable_Members')]",
+				"[concat(variables('factoryId'), '/datasets/AzureSqlTable_Visitors')]",
+				"[concat(variables('factoryId'), '/datasets/AzureSqlTable_Canceled')]",
+				"[concat(variables('factoryId'), '/datasets/AzureSqlTable_Frozen')]"
+			]
+		}
+	]
+}
