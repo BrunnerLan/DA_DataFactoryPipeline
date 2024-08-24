@@ -21,7 +21,7 @@
 				}
 			},
 			{
-				"name": "DataToDatabaseFlow",
+				"name": "BlobStorageToDatabaseFlow",
 				"type": "ExecuteDataFlow",
 				"dependsOn": [
 					{
