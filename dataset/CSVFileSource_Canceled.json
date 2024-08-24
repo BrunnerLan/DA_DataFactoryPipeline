@@ -1,5 +1,5 @@
 {
-	"name": "CSVFileSource_Visitors",
+	"name": "CSVFileSource_Canceled",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "AzureBlobStorage",
@@ -13,10 +13,10 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobStorageLocation",
-				"fileName": "visitors.csv",
+				"fileName": "canceled.csv",
 				"container": "gymdesk"
 			},
-			"columnDelimiter": ",",
+			"columnDelimiter": "@",
 			"rowDelimiter": "\n",
 			"escapeChar": "\\",
 			"firstRowAsHeader": true,
