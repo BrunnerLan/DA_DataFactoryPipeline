@@ -22,6 +22,7 @@
 			},
 			{
 				"name": "BlobStorageToDatabaseFlow",
+				"description": "Data processing",
 				"type": "ExecuteDataFlow",
 				"dependsOn": [
 					{
