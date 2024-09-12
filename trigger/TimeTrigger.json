@@ -2,11 +2,11 @@
 	"name": "TimeTrigger",
 	"properties": {
 		"annotations": [],
-		"runtimeState": "Stopped",
+		"runtimeState": "Started",
 		"pipelines": [
 			{
 				"pipelineReference": {
-					"referenceName": "pipeline1",
+					"referenceName": "TriggerExportAndProcessPipeline",
 					"type": "PipelineReference"
 				}
 			}
@@ -14,7 +14,7 @@
 		"type": "ScheduleTrigger",
 		"typeProperties": {
 			"recurrence": {
-				"frequency": "Week",
+				"frequency": "Day",
 				"interval": 1,
 				"startTime": "2024-08-24T10:55:00",
 				"timeZone": "W. Europe Standard Time",
@@ -24,9 +24,6 @@
 					],
 					"hours": [
 						16
-					],
-					"weekDays": [
-						"Thursday"
 					]
 				}
 			}
