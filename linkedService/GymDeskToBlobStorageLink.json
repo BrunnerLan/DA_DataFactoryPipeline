@@ -1,0 +1,12 @@
+{
+	"name": "GymDeskToBlobStorageLink",
+	"properties": {
+		"annotations": [],
+		"type": "AzureFunction",
+		"typeProperties": {
+			"functionAppUrl": "https://gymdesksyncdevelopment.azurewebsites.net",
+			"authentication": "MSI",
+			"resourceId": ""
+		}
+	}
+}
