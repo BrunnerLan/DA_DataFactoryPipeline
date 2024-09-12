@@ -1,5 +1,5 @@
 {
-	"name": "pipeline1",
+	"name": "TriggerExportAndProcessPipeline",
 	"properties": {
 		"activities": [
 			{
@@ -26,8 +26,6 @@
 				"name": "BlobStorageToDatabaseFlow",
 				"description": "Data processing",
 				"type": "ExecuteDataFlow",
-				"state": "Inactive",
-				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [
 					{
 						"activity": "GymDeskToBlobStorage",
@@ -59,8 +57,6 @@
 			{
 				"name": "RefreshPowerBIDataset",
 				"type": "WebActivity",
-				"state": "Inactive",
-				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [
 					{
 						"activity": "BlobStorageToDatabaseFlow",
