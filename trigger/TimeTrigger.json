@@ -16,7 +16,7 @@
 			"recurrence": {
 				"frequency": "Day",
 				"interval": 1,
-				"startTime": "2024-08-24T10:55:00",
+				"startTime": "2024-09-14T16:00:00",
 				"timeZone": "W. Europe Standard Time",
 				"schedule": {
 					"minutes": [
