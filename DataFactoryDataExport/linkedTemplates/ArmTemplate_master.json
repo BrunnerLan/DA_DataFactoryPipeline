@@ -4,16 +4,20 @@
 	"parameters": {
 		"factoryName": {
 			"type": "string",
-			"metadata": "Data Factory-Name",
+			"metadata": "Data Factory name",
 			"defaultValue": "DataFactoryDataExport"
 		},
 		"AzureBlobStorage_connectionString": {
 			"type": "secureString",
-			"metadata": "Sichere Zeichenfolge für \"connectionString\" von \"AzureBlobStorage\""
+			"metadata": "Secure string for 'connectionString' of 'AzureBlobStorage'"
 		},
 		"AzureSqlDatabase1_password": {
 			"type": "secureString",
-			"metadata": "Sichere Zeichenfolge für \"password\" von \"AzureSqlDatabase1\""
+			"metadata": "Secure string for 'password' of 'AzureSqlDatabase1'"
+		},
+		"GymDeskToBlobStorageLink_functionKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'functionKey' of 'GymDeskToBlobStorageLink'"
 		},
 		"AzureSqlDatabase1_properties_typeProperties_server": {
 			"type": "string",
@@ -27,13 +31,17 @@
 			"type": "string",
 			"defaultValue": "manuel.brunner"
 		},
+		"GymDeskToBlobStorageLink_properties_typeProperties_functionAppUrl": {
+			"type": "string",
+			"defaultValue": "https://gymdesksyncdevelopment.azurewebsites.net"
+		},
 		"containerUri": {
 			"type": "string",
-			"metadata": "URI für Speicherkonto mit verknüpften ARM-Vorlagen"
+			"metadata": "URI to storage account containing linked ARM templates"
 		},
 		"containerSasToken": {
 			"type": "string",
-			"metadata": "SAS-Token für Speicherkonto mit verknüpften ARM-Vorlagen"
+			"metadata": "Sas token to storage account containing linked ARM templates"
 		}
 	},
 	"variables": {
@@ -43,7 +51,7 @@
 		{
 			"name": "DataFactoryDataExport_ArmTemplate_0",
 			"type": "Microsoft.Resources/deployments",
-			"apiVersion": "2018-02-01",
+			"apiVersion": "2024-03-01",
 			"properties": {
 				"mode": "incremental",
 				"templateLink": {
@@ -60,6 +68,9 @@
 					"AzureSqlDatabase1_password": {
 						"value": "[parameters('AzureSqlDatabase1_password')]"
 					},
+					"GymDeskToBlobStorageLink_functionKey": {
+						"value": "[parameters('GymDeskToBlobStorageLink_functionKey')]"
+					},
 					"AzureSqlDatabase1_properties_typeProperties_server": {
 						"value": "[parameters('AzureSqlDatabase1_properties_typeProperties_server')]"
 					},
@@ -68,6 +79,9 @@
 					},
 					"AzureSqlDatabase1_properties_typeProperties_userName": {
 						"value": "[parameters('AzureSqlDatabase1_properties_typeProperties_userName')]"
+					},
+					"GymDeskToBlobStorageLink_properties_typeProperties_functionAppUrl": {
+						"value": "[parameters('GymDeskToBlobStorageLink_properties_typeProperties_functionAppUrl')]"
 					}
 				}
 			},

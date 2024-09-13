@@ -11,6 +11,9 @@
 		"AzureSqlDatabase1_password": {
 			"value": ""
 		},
+		"GymDeskToBlobStorageLink_functionKey": {
+			"value": ""
+		},
 		"AzureSqlDatabase1_properties_typeProperties_server": {
 			"value": "sql-svr-rd-1.database.windows.net"
 		},
@@ -19,6 +22,9 @@
 		},
 		"AzureSqlDatabase1_properties_typeProperties_userName": {
 			"value": "manuel.brunner"
+		},
+		"GymDeskToBlobStorageLink_properties_typeProperties_functionAppUrl": {
+			"value": "https://gymdesksyncdevelopment.azurewebsites.net"
 		},
 		"containerUri": {
 			"value": ""

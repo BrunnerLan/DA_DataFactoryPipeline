@@ -4,16 +4,20 @@
 	"parameters": {
 		"factoryName": {
 			"type": "string",
-			"metadata": "Data Factory-Name",
+			"metadata": "Data Factory name",
 			"defaultValue": "DataFactoryDataExport"
 		},
 		"AzureBlobStorage_connectionString": {
 			"type": "secureString",
-			"metadata": "Sichere Zeichenfolge für \"connectionString\" von \"AzureBlobStorage\""
+			"metadata": "Secure string for 'connectionString' of 'AzureBlobStorage'"
 		},
 		"AzureSqlDatabase1_password": {
 			"type": "secureString",
-			"metadata": "Sichere Zeichenfolge für \"password\" von \"AzureSqlDatabase1\""
+			"metadata": "Secure string for 'password' of 'AzureSqlDatabase1'"
+		},
+		"GymDeskToBlobStorageLink_functionKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'functionKey' of 'GymDeskToBlobStorageLink'"
 		},
 		"AzureSqlDatabase1_properties_typeProperties_server": {
 			"type": "string",
@@ -26,6 +30,10 @@
 		"AzureSqlDatabase1_properties_typeProperties_userName": {
 			"type": "string",
 			"defaultValue": "manuel.brunner"
+		},
+		"GymDeskToBlobStorageLink_properties_typeProperties_functionAppUrl": {
+			"type": "string",
+			"defaultValue": "https://gymdesksyncdevelopment.azurewebsites.net"
 		}
 	},
 	"variables": {
@@ -33,7 +41,7 @@
 	},
 	"resources": [
 		{
-			"name": "[concat(parameters('factoryName'), '/pipeline1')]",
+			"name": "[concat(parameters('factoryName'), '/TriggerExportAndProcessPipeline')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -42,8 +50,6 @@
 						"name": "GymDeskToBlobStorage",
 						"description": "Time-controlled function",
 						"type": "AzureFunctionActivity",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
 						"dependsOn": [],
 						"policy": {
 							"timeout": "0.00:15:00",
@@ -57,14 +63,16 @@
 							"functionName": "gymdeskSyncTrigger",
 							"headers": {},
 							"method": "GET"
+						},
+						"linkedServiceName": {
+							"referenceName": "GymDeskToBlobStorageLink",
+							"type": "LinkedServiceReference"
 						}
 					},
 					{
 						"name": "BlobStorageToDatabaseFlow",
 						"description": "Data processing",
 						"type": "ExecuteDataFlow",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
 						"dependsOn": [
 							{
 								"activity": "GymDeskToBlobStorage",
@@ -108,8 +116,6 @@
 					{
 						"name": "RefreshPowerBIDataset",
 						"type": "WebActivity",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
 						"dependsOn": [
 							{
 								"activity": "BlobStorageToDatabaseFlow",
@@ -130,7 +136,7 @@
 							"method": "POST",
 							"headers": {},
 							"url": "https://prod-05.switzerlandnorth.logic.azure.com:443/workflows/12695a545a5c487c85153dec30df1c1f/triggers/When_a_HTTP_request_is_received/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2FWhen_a_HTTP_request_is_received%2Frun&sv=1.0&sig=xI3wgM6Iu7lw5Oqyr-pRxSoFf73F9n51Ek3s5rj8keg",
-							"body": {}
+							"body": " "
 						}
 					}
 				],
@@ -140,6 +146,7 @@
 				"annotations": []
 			},
 			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/GymDeskToBlobStorageLink')]",
 				"[concat(variables('factoryId'), '/dataflows/Dataflow_DataToDB')]"
 			]
 		},
@@ -2300,16 +2307,34 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/GymDeskToBlobStorageLink')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureFunction",
+				"typeProperties": {
+					"functionAppUrl": "[parameters('GymDeskToBlobStorageLink_properties_typeProperties_functionAppUrl')]",
+					"authentication": "Anonymous",
+					"functionKey": {
+						"type": "SecureString",
+						"value": "[parameters('GymDeskToBlobStorageLink_functionKey')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/TimeTrigger')]",
 			"type": "Microsoft.DataFactory/factories/triggers",
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"annotations": [],
-				"runtimeState": "Stopped",
+				"runtimeState": "Started",
 				"pipelines": [
 					{
 						"pipelineReference": {
-							"referenceName": "pipeline1",
+							"referenceName": "TriggerExportAndProcessPipeline",
 							"type": "PipelineReference"
 						},
 						"parameters": {}
@@ -2318,9 +2343,9 @@
 				"type": "ScheduleTrigger",
 				"typeProperties": {
 					"recurrence": {
-						"frequency": "Week",
+						"frequency": "Day",
 						"interval": 1,
-						"startTime": "2024-08-24T10:55:00",
+						"startTime": "2024-09-14T16:00:00",
 						"timeZone": "W. Europe Standard Time",
 						"schedule": {
 							"minutes": [
@@ -2328,16 +2353,13 @@
 							],
 							"hours": [
 								16
-							],
-							"weekDays": [
-								"Thursday"
 							]
 						}
 					}
 				}
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/pipeline1')]"
+				"[concat(variables('factoryId'), '/pipelines/TriggerExportAndProcessPipeline')]"
 			]
 		},
 		{
