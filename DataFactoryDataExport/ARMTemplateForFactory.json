@@ -19,6 +19,10 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'functionKey' of 'GymDeskToBlobStorageLink'"
 		},
+		"AzureFunction1_functionKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'functionKey' of 'AzureFunction1'"
+		},
 		"AzureSqlDatabase1_properties_typeProperties_server": {
 			"type": "string",
 			"defaultValue": "sql-svr-rd-1.database.windows.net"
@@ -32,6 +36,10 @@
 			"defaultValue": "manuel.brunner"
 		},
 		"GymDeskToBlobStorageLink_properties_typeProperties_functionAppUrl": {
+			"type": "string",
+			"defaultValue": "https://gymdesksyncdevelopment.azurewebsites.net"
+		},
+		"AzureFunction1_properties_typeProperties_functionAppUrl": {
 			"type": "string",
 			"defaultValue": "https://gymdesksyncdevelopment.azurewebsites.net"
 		}
@@ -65,7 +73,7 @@
 							"method": "GET"
 						},
 						"linkedServiceName": {
-							"referenceName": "GymDeskToBlobStorageLink",
+							"referenceName": "AzureFunction1",
 							"type": "LinkedServiceReference"
 						}
 					},
@@ -146,7 +154,7 @@
 				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/GymDeskToBlobStorageLink')]",
+				"[concat(variables('factoryId'), '/linkedServices/AzureFunction1')]",
 				"[concat(variables('factoryId'), '/dataflows/Dataflow_DataToDB')]"
 			]
 		},
@@ -2995,6 +3003,24 @@
 				"[concat(variables('factoryId'), '/datasets/AzureSqlTable_Canceled')]",
 				"[concat(variables('factoryId'), '/datasets/AzureSqlTable_Frozen')]"
 			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureFunction1')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureFunction",
+				"typeProperties": {
+					"functionAppUrl": "[parameters('AzureFunction1_properties_typeProperties_functionAppUrl')]",
+					"authentication": "Anonymous",
+					"functionKey": {
+						"type": "SecureString",
+						"value": "[parameters('AzureFunction1_functionKey')]"
+					}
+				}
+			},
+			"dependsOn": []
 		}
 	]
 }

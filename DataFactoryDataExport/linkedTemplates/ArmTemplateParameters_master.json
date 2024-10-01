@@ -14,6 +14,9 @@
 		"GymDeskToBlobStorageLink_functionKey": {
 			"value": ""
 		},
+		"AzureFunction1_functionKey": {
+			"value": ""
+		},
 		"AzureSqlDatabase1_properties_typeProperties_server": {
 			"value": "sql-svr-rd-1.database.windows.net"
 		},
@@ -24,6 +27,9 @@
 			"value": "manuel.brunner"
 		},
 		"GymDeskToBlobStorageLink_properties_typeProperties_functionAppUrl": {
+			"value": "https://gymdesksyncdevelopment.azurewebsites.net"
+		},
+		"AzureFunction1_properties_typeProperties_functionAppUrl": {
 			"value": "https://gymdesksyncdevelopment.azurewebsites.net"
 		},
 		"containerUri": {
