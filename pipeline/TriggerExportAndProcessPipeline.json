@@ -20,7 +20,7 @@
 					"method": "GET"
 				},
 				"linkedServiceName": {
-					"referenceName": "GymDeskToBlobStorageLink",
+					"referenceName": "AzureFunction1",
 					"type": "LinkedServiceReference"
 				}
 			},
