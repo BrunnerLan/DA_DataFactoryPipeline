@@ -1,6 +1,7 @@
 {
 	"name": "TimeTrigger",
 	"properties": {
+		"description": "Time-controlled release daily at 16:00",
 		"annotations": [],
 		"runtimeState": "Started",
 		"pipelines": [
