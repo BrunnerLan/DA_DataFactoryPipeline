@@ -1,5 +1,10 @@
 {
 	"name": "DataFactoryDataExport",
+	"properties": {
+		"globalConfigurations": {
+			"PipelineBillingEnabled": "true"
+		}
+	},
 	"location": "switzerlandnorth",
 	"identity": {
 		"type": "SystemAssigned",
