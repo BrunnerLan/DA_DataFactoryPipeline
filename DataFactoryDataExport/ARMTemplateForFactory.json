@@ -4,20 +4,20 @@
 	"parameters": {
 		"factoryName": {
 			"type": "string",
-			"metadata": "Data Factory name",
+			"metadata": "Data Factory-Name",
 			"defaultValue": "DataFactoryDataExport"
 		},
 		"AzureBlobStorage_connectionString": {
 			"type": "secureString",
-			"metadata": "Secure string for 'connectionString' of 'AzureBlobStorage'"
+			"metadata": "Sichere Zeichenfolge für \"connectionString\" von \"AzureBlobStorage\""
 		},
 		"AzureSqlDatabase1_password": {
 			"type": "secureString",
-			"metadata": "Secure string for 'password' of 'AzureSqlDatabase1'"
+			"metadata": "Sichere Zeichenfolge für \"password\" von \"AzureSqlDatabase1\""
 		},
 		"GymDeskToBlobStorageLink_functionKey": {
 			"type": "secureString",
-			"metadata": "Secure string for 'functionKey' of 'GymDeskToBlobStorageLink'"
+			"metadata": "Sichere Zeichenfolge für \"functionKey\" von \"GymDeskToBlobStorageLink\""
 		},
 		"AzureSqlDatabase1_properties_typeProperties_server": {
 			"type": "string",
@@ -116,6 +116,8 @@
 					{
 						"name": "RefreshPowerBIDataset",
 						"type": "WebActivity",
+						"state": "Inactive",
+						"onInactiveMarkAs": "Succeeded",
 						"dependsOn": [
 							{
 								"activity": "BlobStorageToDatabaseFlow",
@@ -2311,6 +2313,7 @@
 			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
 			"properties": {
+				"description": "Connection Azure Functions to Data Factory",
 				"annotations": [],
 				"type": "AzureFunction",
 				"typeProperties": {
@@ -2329,6 +2332,7 @@
 			"type": "Microsoft.DataFactory/factories/triggers",
 			"apiVersion": "2018-06-01",
 			"properties": {
+				"description": "Time-controlled release daily at 16:00",
 				"annotations": [],
 				"runtimeState": "Started",
 				"pipelines": [
